@@ -151,12 +151,22 @@ extern NSString *const SRHTTPResponseErrorKey;
 
 /**
  Initializes a web socket with a given `NSURLRequest`, list of sub-protocols and whether untrusted SSL certificates are allowed.
-
+ 
  @param request                        Request to initialize with.
  @param protocols                      An array of strings that turn into `Sec-WebSocket-Protocol`. Default: `nil`.
  @param allowsUntrustedSSLCertificates Boolean value indicating whether untrusted SSL certificates are allowed. Default: `false`.
  */
 - (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(nullable NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
+
+/**
+ Initializes a web socket with a given `NSURLRequest`, list of sub-protocols, whether untrusted SSL certificates are allowed and whether a default origin header should be set.
+
+ @param request                        Request to initialize with.
+ @param protocols                      An array of strings that turn into `Sec-WebSocket-Protocol`. Default: `nil`.
+ @param allowsUntrustedSSLCertificates Boolean value indicating whether untrusted SSL certificates are allowed. Default: `false`.
+ @param requiresOrigin                 Boolean value indicating whether a default origin header should be set. Default: `true`.
+ */
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(nullable NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates requiresOrigin:(BOOL)requiresOrigin;
 
 /**
  Initializes a web socket with a given `NSURLRequest`, list of sub-protocols and whether untrusted SSL certificates are allowed.
@@ -165,7 +175,17 @@ extern NSString *const SRHTTPResponseErrorKey;
  @param protocols      An array of strings that turn into `Sec-WebSocket-Protocol`. Default: `nil`.
  @param securityPolicy Policy object describing transport security behavior.
  */
-- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(nullable NSArray<NSString *> *)protocols securityPolicy:(SRSecurityPolicy *)securityPolicy NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(nullable NSArray<NSString *> *)protocols securityPolicy:(SRSecurityPolicy *)securityPolicy;
+
+/**
+ Initializes a web socket with a given `NSURLRequest`, list of sub-protocols, whether untrusted SSL certificates are allowed and whether a default origin header should be set.
+ 
+ @param request        Request to initialize with.
+ @param protocols      An array of strings that turn into `Sec-WebSocket-Protocol`. Default: `nil`.
+ @param securityPolicy Policy object describing transport security behavior.
+ @param requiresOrigin Boolean value indicating whether a default origin header should be set. Default: `true`.
+ */
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(nullable NSArray<NSString *> *)protocols securityPolicy:(SRSecurityPolicy *)securityPolicy requiresOrigin:(BOOL)requiresOrigin NS_DESIGNATED_INITIALIZER;
 
 /**
  Initializes a web socket with a given `NSURL`.
@@ -192,12 +212,22 @@ extern NSString *const SRHTTPResponseErrorKey;
 
 /**
  Initializes a web socket with a given `NSURL`, list of sub-protocols and whether untrusted SSL certificates are allowed.
-
+ 
  @param url                            URL to initialize with.
  @param protocols                      An array of strings that turn into `Sec-WebSocket-Protocol`. Default: `nil`.
  @param allowsUntrustedSSLCertificates Boolean value indicating whether untrusted SSL certificates are allowed. Default: `false`.
  */
 - (instancetype)initWithURL:(NSURL *)url protocols:(nullable NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
+
+/**
+ Initializes a web socket with a given `NSURL`, list of sub-protocols, whether untrusted SSL certificates are allowed and whether a default origin header should be set.
+
+ @param url                            URL to initialize with.
+ @param protocols                      An array of strings that turn into `Sec-WebSocket-Protocol`. Default: `nil`.
+ @param allowsUntrustedSSLCertificates Boolean value indicating whether untrusted SSL certificates are allowed. Default: `false`.
+ @param requiresOrigin                 Boolean value indicating whether a default origin header should be set. Default: `true`.
+ */
+- (instancetype)initWithURL:(NSURL *)url protocols:(nullable NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates requiresOrigin:(BOOL)requiresOrigin;
 
 /**
  Unavailable initializer. Please use any other initializer.

@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 extern CFHTTPMessageRef SRHTTPConnectMessageCreate(NSURLRequest *request,
                                                    NSString *securityKey,
                                                    uint8_t webSocketProtocolVersion,
+                                                   BOOL requestRequiresOrigin,
                                                    NSArray<NSHTTPCookie *> *_Nullable cookies,
                                                    NSArray<NSString *> *_Nullable requestedProtocols);
 

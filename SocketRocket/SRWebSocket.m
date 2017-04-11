@@ -112,6 +112,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     SRSecurityPolicy *_securityPolicy;
     BOOL _requestRequiresSSL;
     BOOL _streamSecurityValidated;
+    BOOL _requestRequiresOrigin;
 
     uint8_t _currentReadMaskKey[4];
     size_t _currentReadMaskOffset;
@@ -146,7 +147,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 #pragma mark - Init
 ///--------------------------------------
 
-- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols securityPolicy:(SRSecurityPolicy *)securityPolicy
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols securityPolicy:(SRSecurityPolicy *)securityPolicy requiresOrigin:(BOOL)requiresOrigin
 {
     self = [super init];
     if (!self) return self;
@@ -157,6 +158,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     _requestedProtocols = [protocols copy];
     _securityPolicy = securityPolicy;
     _requestRequiresSSL = SRURLRequiresSSL(_url);
+    _requestRequiresOrigin = requiresOrigin;
 
     _readyState = SR_CONNECTING;
 
@@ -183,7 +185,12 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     return self;
 }
 
-- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols securityPolicy:(SRSecurityPolicy *)securityPolicy
+{
+    return [self initWithURLRequest:request protocols:protocols securityPolicy:securityPolicy requiresOrigin:YES];
+}
+
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates requiresOrigin:(BOOL)requiresOrigin
 {
     SRSecurityPolicy *securityPolicy;
     NSArray *pinnedCertificates = request.SR_SSLPinnedCertificates;
@@ -194,12 +201,17 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         securityPolicy = [[SRSecurityPolicy alloc] initWithCertificateChainValidationEnabled:certificateChainValidationEnabled];
     }
 
-    return [self initWithURLRequest:request protocols:protocols securityPolicy:securityPolicy];
+    return [self initWithURLRequest:request protocols:protocols securityPolicy:securityPolicy requiresOrigin:requiresOrigin];
+}
+
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
+{
+    return [self initWithURLRequest:request protocols:protocols allowsUntrustedSSLCertificates:allowsUntrustedSSLCertificates requiresOrigin:YES];
 }
 
 - (instancetype)initWithURLRequest:(NSURLRequest *)request securityPolicy:(SRSecurityPolicy *)securityPolicy
 {
-    return [self initWithURLRequest:request protocols:nil securityPolicy:securityPolicy];
+    return [self initWithURLRequest:request protocols:nil securityPolicy:securityPolicy requiresOrigin:YES];
 }
 
 - (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols
@@ -225,13 +237,18 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 - (instancetype)initWithURL:(NSURL *)url securityPolicy:(SRSecurityPolicy *)securityPolicy
 {
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
-    return [self initWithURLRequest:request protocols:nil securityPolicy:securityPolicy];
+    return [self initWithURLRequest:request protocols:nil securityPolicy:securityPolicy requiresOrigin:YES];
 }
 
 - (instancetype)initWithURL:(NSURL *)url protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
 {
+    return [self initWithURL:url protocols:protocols allowsUntrustedSSLCertificates:allowsUntrustedSSLCertificates requiresOrigin:YES];
+}
+
+- (instancetype)initWithURL:(NSURL *)url protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates requiresOrigin:(BOOL)requiresOrigin
+{
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
-    return [self initWithURLRequest:request protocols:protocols allowsUntrustedSSLCertificates:allowsUntrustedSSLCertificates];
+    return [self initWithURLRequest:request protocols:protocols allowsUntrustedSSLCertificates:allowsUntrustedSSLCertificates requiresOrigin:requiresOrigin];
 }
 
 - (void)assertOnWorkQueue;
@@ -441,6 +458,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     CFHTTPMessageRef message = SRHTTPConnectMessageCreate(_urlRequest,
                                                           _secKey,
                                                           SRWebSocketProtocolVersion,
+                                                          _requestRequiresOrigin,
                                                           self.requestCookies,
                                                           _requestedProtocols);
 

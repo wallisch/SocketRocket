@@ -25,6 +25,7 @@ static NSString *_SRHTTPConnectMessageHost(NSURL *url)
 CFHTTPMessageRef SRHTTPConnectMessageCreate(NSURLRequest *request,
                                             NSString *securityKey,
                                             uint8_t webSocketProtocolVersion,
+                                            BOOL requestRequiresOrigin,
                                             NSArray<NSHTTPCookie *> *_Nullable cookies,
                                             NSArray<NSString *> *_Nullable requestedProtocols)
 {
@@ -62,7 +63,9 @@ CFHTTPMessageRef SRHTTPConnectMessageCreate(NSURLRequest *request,
     CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Sec-WebSocket-Key"), (__bridge CFStringRef)securityKey);
     CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Sec-WebSocket-Version"), (__bridge CFStringRef)@(webSocketProtocolVersion).stringValue);
 
-    CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Origin"), (__bridge CFStringRef)SRURLOrigin(url));
+    if (requestRequiresOrigin) {
+        CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Origin"), (__bridge CFStringRef)SRURLOrigin(url));
+    }
 
     if (requestedProtocols.count) {
         CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Sec-WebSocket-Protocol"),
